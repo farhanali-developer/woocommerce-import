@@ -1,0 +1,6 @@
+{
+    "require": {
+        "pusher/pusher-php-server": "^7.0",
+        "ultramsg/whatsapp-php-sdk": "^2.0"
+    }
+}

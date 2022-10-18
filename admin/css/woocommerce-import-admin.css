@@ -1,0 +1,75 @@
+/**
+ * All of the CSS for your admin-specific functionality should be
+ * included in this file.
+ */
+
+#mapping-data{
+    display: none;
+}
+#mapping-data{
+    margin-bottom: 1em;
+    margin-top: 1em;
+}
+#submit-form-btn{
+    display: none;
+}
+/* svg {
+    width: 100px;
+    height: 100px;
+    margin: 20px;
+    display: inline-block;
+} */
+
+.progress{
+  height: 30px;
+}
+
+.swal2-container{
+  margin-top: 50px;
+}
+
+.iziToast.iziToast-animateInside .iziToast-icon {
+  opacity: 1 !important;
+}
+
+.swal2-html-container{
+  color: #fff;
+}
+
+.swal2-container {
+  margin-top: 0;
+}
+
+#product_progress{
+  font-size: 1.25rem;
+  display: inline;
+}
+
+
+#exampleModalLongTitle span {
+  font-size: 30px;
+  animation-name: blink;
+  animation-duration: 1.4s;
+  animation-iteration-count: infinite;
+  animation-fill-mode: both;
+}
+
+#exampleModalLongTitle span:nth-child(2) {
+  animation-delay: .2s;
+}
+
+#exampleModalLongTitle span:nth-child(3) {
+  animation-delay: .4s;
+}
+
+@keyframes blink {
+  0% {
+    opacity: .2;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    opacity: .2;
+  }
+}
