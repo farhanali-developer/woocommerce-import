@@ -38,7 +38,7 @@ foreach($csv_file as $csv_data){
     $fp = file($csvFileName);
 
     $csv = new \ParseCsv\Csv();
-    $csv->auto($csvFileName);     
+    $csv->auto($csvFileName);
     $csv_file_data = $csv->data;
 
     //Counting total number of rows in CSV file
@@ -70,6 +70,29 @@ foreach($csv_file as $csv_data){
             else if($product[$data['Type']] === "external"){
                $products = new WC_Product_External();
             }
+            // else if($product[$data['Type']] === "variation"){
+            //     $products = new WC_Product_Variable();
+            //     $variation = new WC_Product_Variation();
+            //     $variation->set_parent_id( $products->get_id() );
+
+            //     $attr_1_name = $product[$data['Attribute_1_name']];
+            //     $attr_1_val = $product[$data['Attribute_1_value(s)']];
+
+            //     $attr_2_name = $product[$data['Attribute_2_name']];
+            //     $attr_2_val = $product[$data['Attribute_2_value(s)']];
+
+            //     $attributes = array(
+            //         $attr_1_name => $attr_1_val,
+            //         $attr_2_name => $attr_2_val
+            //     );
+                                
+            //     $variation->set_attributes( array(''.strtolower($attr_1_name).'' => ''.$attr_1_val.'', ''.strtolower($attr_2_name).'' => ''.$attr_2_val.'') );
+            //     $variation->set_regular_price( $product[$data['Regular_price']] );
+            //     $variation->set_sale_price($product[$data['Sale_price']]);
+            //     $variation->set_status('publish');
+            //     // $variation->set_image_id( 4897 );
+            //     $variation->save();
+            // }
 
             $product_id = wc_get_product_id_by_sku($product[$data['SKU']]);
 
@@ -443,18 +466,42 @@ foreach($csv_file as $csv_data){
                     
                             $products->set_attributes( $attributes );
 
-                            $attr_1_name = $product[$data['Attribute_1_name']];
-                            $attr_1_default = $product[$data['Attribute_1_default']];
-            
-                            $attr_2_name = $product[$data['Attribute_2_name']];
-                            $attr_2_default = $product[$data['Attribute_2_default']];
-            
-                            $default_attributes = array(
-                                strtolower($attr_1_name) => $attr_1_default,
-                                strtolower($attr_2_name) => $attr_2_default
-                            );
+                            if(!empty($product[$data['Attribute_1_default']]) && !empty($product[$data['Attribute_2_default']])){
+                                $attr_1_name = $product[$data['Attribute_1_name']];
+                                $attr_1_default = $product[$data['Attribute_1_default']];
+                
+                                $attr_2_name = $product[$data['Attribute_2_name']];
+                                $attr_2_default = $product[$data['Attribute_2_default']];
+                
+                                $default_attributes = array(
+                                    strtolower($attr_1_name) => $attr_1_default,
+                                    strtolower($attr_2_name) => $attr_2_default
+                                );
 
-                            $products->set_default_attributes( $default_attributes );
+                                $products->set_default_attributes( $default_attributes );
+                            }
+                            else if(!empty($product[$data['Attribute_1_default']]) && empty($product[$data['Attribute_2_default']])){
+                                $attr_1_name = $product[$data['Attribute_1_name']];
+                                $attr_1_default = $product[$data['Attribute_1_default']];
+                
+                                $default_attributes = array(
+                                    strtolower($attr_1_name) => $attr_1_default
+                                );
+
+                                $products->set_default_attributes( $default_attributes );
+                            }
+                            else if(empty($product[$data['Attribute_1_default']]) && !empty($product[$data['Attribute_2_default']])){
+                                $attr_2_name = $product[$data['Attribute_2_name']];
+                                $attr_2_default = $product[$data['Attribute_2_default']];
+                
+                                $default_attributes = array(
+                                    strtolower($attr_2_name) => $attr_2_default
+                                );
+
+                                $products->set_default_attributes( $default_attributes );
+                            }
+
+                            
                         }
                         else if(!empty($product[$data['Attribute_1_name']])){
                             // that's going to be an array of attributes we add to a product programmatically
@@ -482,14 +529,40 @@ foreach($csv_file as $csv_data){
                     
                             $products->set_attributes( $attributes );
 
-                            $attr_1_name = $product[$data['Attribute_1_name']];
-                            $attr_1_default = $product[$data['Attribute_1_default']];
-            
-                            $default_attributes = array(
-                                strtolower($attr_1_name) => $attr_1_default
-                            );
+                            if(!empty($product[$data['Attribute_1_default']]) && !empty($product[$data['Attribute_2_default']])){
+                                $attr_1_name = $product[$data['Attribute_1_name']];
+                                $attr_1_default = $product[$data['Attribute_1_default']];
+                
+                                $attr_2_name = $product[$data['Attribute_2_name']];
+                                $attr_2_default = $product[$data['Attribute_2_default']];
+                
+                                $default_attributes = array(
+                                    strtolower($attr_1_name) => $attr_1_default,
+                                    strtolower($attr_2_name) => $attr_2_default
+                                );
 
-                            $products->set_default_attributes( $default_attributes );
+                                $products->set_default_attributes( $default_attributes );
+                            }
+                            else if(!empty($product[$data['Attribute_1_default']]) && empty($product[$data['Attribute_2_default']])){
+                                $attr_1_name = $product[$data['Attribute_1_name']];
+                                $attr_1_default = $product[$data['Attribute_1_default']];
+                
+                                $default_attributes = array(
+                                    strtolower($attr_1_name) => $attr_1_default
+                                );
+
+                                $products->set_default_attributes( $default_attributes );
+                            }
+                            else if(empty($product[$data['Attribute_1_default']]) && !empty($product[$data['Attribute_2_default']])){
+                                $attr_2_name = $product[$data['Attribute_2_name']];
+                                $attr_2_default = $product[$data['Attribute_2_default']];
+                
+                                $default_attributes = array(
+                                    strtolower($attr_2_name) => $attr_2_default
+                                );
+
+                                $products->set_default_attributes( $default_attributes );
+                            }
                         }
                         else if(!empty($product[$data['Attribute_2_name']])){
                             // that's going to be an array of attributes we add to a product programmatically
@@ -518,14 +591,40 @@ foreach($csv_file as $csv_data){
                     
                             $products->set_attributes( $attributes );
 
-                            $attr_2_name = $product[$data['Attribute_2_name']];
-                            $attr_2_default = $product[$data['Attribute_2_default']];
-            
-                            $default_attributes = array(
-                                strtolower($attr_2_name) => $attr_2_default
-                            );
+                            if(!empty($product[$data['Attribute_1_default']]) && !empty($product[$data['Attribute_2_default']])){
+                                $attr_1_name = $product[$data['Attribute_1_name']];
+                                $attr_1_default = $product[$data['Attribute_1_default']];
+                
+                                $attr_2_name = $product[$data['Attribute_2_name']];
+                                $attr_2_default = $product[$data['Attribute_2_default']];
+                
+                                $default_attributes = array(
+                                    strtolower($attr_1_name) => $attr_1_default,
+                                    strtolower($attr_2_name) => $attr_2_default
+                                );
 
-                            $products->set_default_attributes( $default_attributes );
+                                $products->set_default_attributes( $default_attributes );
+                            }
+                            else if(!empty($product[$data['Attribute_1_default']]) && empty($product[$data['Attribute_2_default']])){
+                                $attr_1_name = $product[$data['Attribute_1_name']];
+                                $attr_1_default = $product[$data['Attribute_1_default']];
+                
+                                $default_attributes = array(
+                                    strtolower($attr_1_name) => $attr_1_default
+                                );
+
+                                $products->set_default_attributes( $default_attributes );
+                            }
+                            else if(empty($product[$data['Attribute_1_default']]) && !empty($product[$data['Attribute_2_default']])){
+                                $attr_2_name = $product[$data['Attribute_2_name']];
+                                $attr_2_default = $product[$data['Attribute_2_default']];
+                
+                                $default_attributes = array(
+                                    strtolower($attr_2_name) => $attr_2_default
+                                );
+
+                                $products->set_default_attributes( $default_attributes );
+                            }
                         }
     
                         if($product[$data['Type']] !== "simple, virtual" || $product[$data['Type']] !== "simple, downloadable, virtual"){
@@ -754,7 +853,7 @@ foreach($csv_file as $csv_data){
                 }
                 catch (Exception $e) {
                     echo $e->getMessage();
-                    echo "<h1>Error in adding product: ".$product[$data["Name"]].".</h1>";
+                    echo "<h1>Error in adding product ".$product["ID"].".</h1>";
                 }
             }
                 
@@ -1133,18 +1232,40 @@ foreach($csv_file as $csv_data){
                             
                                 $update_product->set_attributes( $attributes );
 
-                                $attr_1_name = $product[$data['Attribute_1_name']];
-                                $attr_1_default = $product[$data['Attribute_1_default']];
-                
-                                $attr_2_name = $product[$data['Attribute_2_name']];
-                                $attr_2_default = $product[$data['Attribute_2_default']];
-                
-                                $default_attributes = array(
-                                    strtolower($attr_1_name) => $attr_1_default,
-                                    strtolower($attr_2_name) => $attr_2_default
-                                );
-
-                                $update_product->set_default_attributes( $default_attributes );
+                                if(!empty($product[$data['Attribute_1_default']]) && !empty($product[$data['Attribute_2_default']])){
+                                    $attr_1_name = $product[$data['Attribute_1_name']];
+                                    $attr_1_default = $product[$data['Attribute_1_default']];
+                    
+                                    $attr_2_name = $product[$data['Attribute_2_name']];
+                                    $attr_2_default = $product[$data['Attribute_2_default']];
+                    
+                                    $default_attributes = array(
+                                        strtolower($attr_1_name) => $attr_1_default,
+                                        strtolower($attr_2_name) => $attr_2_default
+                                    );
+    
+                                    $update_product->set_default_attributes( $default_attributes );
+                                }
+                                else if(!empty($product[$data['Attribute_1_default']]) && empty($product[$data['Attribute_2_default']])){
+                                    $attr_1_name = $product[$data['Attribute_1_name']];
+                                    $attr_1_default = $product[$data['Attribute_1_default']];
+                    
+                                    $default_attributes = array(
+                                        strtolower($attr_1_name) => $attr_1_default
+                                    );
+    
+                                    $update_product->set_default_attributes( $default_attributes );
+                                }
+                                else if(empty($product[$data['Attribute_1_default']]) && !empty($product[$data['Attribute_2_default']])){
+                                    $attr_2_name = $product[$data['Attribute_2_name']];
+                                    $attr_2_default = $product[$data['Attribute_2_default']];
+                    
+                                    $default_attributes = array(
+                                        strtolower($attr_2_name) => $attr_2_default
+                                    );
+    
+                                    $update_product->set_default_attributes( $default_attributes );
+                                }
                             }
                             else if(!empty($product[$data['Attribute_1_name']])){
                                 // that's going to be an array of attributes we add to a product programmatically
@@ -1172,14 +1293,40 @@ foreach($csv_file as $csv_data){
                             
                                 $update_product->set_attributes( $attributes );
 
-                                $attr_1_name = $product[$data['Attribute_1_name']];
-                                $attr_1_default = $product[$data['Attribute_1_default']];
-                
-                                $default_attributes = array(
-                                    strtolower($attr_1_name) => $attr_1_default
-                                );
+                                if(!empty($product[$data['Attribute_1_default']]) && !empty($product[$data['Attribute_2_default']])){
+                                    $attr_1_name = $product[$data['Attribute_1_name']];
+                                    $attr_1_default = $product[$data['Attribute_1_default']];
+                    
+                                    $attr_2_name = $product[$data['Attribute_2_name']];
+                                    $attr_2_default = $product[$data['Attribute_2_default']];
+                    
+                                    $default_attributes = array(
+                                        strtolower($attr_1_name) => $attr_1_default,
+                                        strtolower($attr_2_name) => $attr_2_default
+                                    );
     
-                                $update_product->set_default_attributes( $default_attributes );
+                                    $update_product->set_default_attributes( $default_attributes );
+                                }
+                                else if(!empty($product[$data['Attribute_1_default']]) && empty($product[$data['Attribute_2_default']])){
+                                    $attr_1_name = $product[$data['Attribute_1_name']];
+                                    $attr_1_default = $product[$data['Attribute_1_default']];
+                    
+                                    $default_attributes = array(
+                                        strtolower($attr_1_name) => $attr_1_default
+                                    );
+    
+                                    $update_product->set_default_attributes( $default_attributes );
+                                }
+                                else if(empty($product[$data['Attribute_1_default']]) && !empty($product[$data['Attribute_2_default']])){
+                                    $attr_2_name = $product[$data['Attribute_2_name']];
+                                    $attr_2_default = $product[$data['Attribute_2_default']];
+                    
+                                    $default_attributes = array(
+                                        strtolower($attr_2_name) => $attr_2_default
+                                    );
+    
+                                    $update_product->set_default_attributes( $default_attributes );
+                                }
                             }
                             else if(!empty($product[$data['Attribute_2_name']])){
                                 // that's going to be an array of attributes we add to a product programmatically
@@ -1207,14 +1354,40 @@ foreach($csv_file as $csv_data){
                             
                                 $update_product->set_attributes( $attributes );
 
-                                $attr_2_name = $product[$data['Attribute_2_name']];
-                                $attr_2_default = $product[$data['Attribute_2_default']];
-                
-                                $default_attributes = array(
-                                    strtolower($attr_2_name) => $attr_2_default
-                                );
+                                if(!empty($product[$data['Attribute_1_default']]) && !empty($product[$data['Attribute_2_default']])){
+                                    $attr_1_name = $product[$data['Attribute_1_name']];
+                                    $attr_1_default = $product[$data['Attribute_1_default']];
+
+                                    $attr_2_name = $product[$data['Attribute_2_name']];
+                                    $attr_2_default = $product[$data['Attribute_2_default']];
+                    
+                                    $default_attributes = array(
+                                        strtolower($attr_1_name) => $attr_1_default,
+                                        strtolower($attr_2_name) => $attr_2_default
+                                    );
     
-                                $products->set_default_attributes( $default_attributes );
+                                    $update_product->set_default_attributes( $default_attributes );
+                                }
+                                else if(!empty($product[$data['Attribute_1_default']]) && empty($product[$data['Attribute_2_default']])){
+                                    $attr_1_name = $product[$data['Attribute_1_name']];
+                                    $attr_1_default = $product[$data['Attribute_1_default']];
+                    
+                                    $default_attributes = array(
+                                        strtolower($attr_1_name) => $attr_1_default
+                                    );
+    
+                                    $update_product->set_default_attributes( $default_attributes );
+                                }
+                                else if(empty($product[$data['Attribute_1_default']]) && !empty($product[$data['Attribute_2_default']])){
+                                    $attr_2_name = $product[$data['Attribute_2_name']];
+                                    $attr_2_default = $product[$data['Attribute_2_default']];
+                    
+                                    $default_attributes = array(
+                                        strtolower($attr_2_name) => $attr_2_default
+                                    );
+    
+                                    $update_product->set_default_attributes( $default_attributes );
+                                }
                             }
                             
                             if($product[$data['Type']] !== "simple, virtual" || $product[$data['Type']] !== "simple, downloadable, virtual"){
@@ -1461,6 +1634,7 @@ foreach($csv_file as $csv_data){
 
     $data["products_added"] = $new_products;
     $data["products_updated"] = $updated_products;
+    $data["time_taken"] = $time_elapsed_secs;
     $pusher->trigger('my-channel', 'my-event', $result);
     echo json_encode($data);
     fclose($file);
@@ -1483,6 +1657,7 @@ function pippin_get_image_id($path){
     // call WP native function to find post ID properly
     return attachment_url_to_postid( $path );
 }
+
 
 function get_hierarchical_category_id($parent_id, $parent_child_category){
     if(!empty($parent_id)){
