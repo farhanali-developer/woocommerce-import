@@ -903,8 +903,23 @@ function whatsapp_integration_menu(){
 					processData: false,
 					async: true,
 					success: function(data){
-						console.log(data);
 						$("#whatsapp-number").val(data);
+						Swal.fire({
+							position: 'top-end',
+							icon: 'success',
+							title: 'Number Saved Successfully.',
+							showConfirmButton: false,
+							timer: 1500
+						});
+					},
+					error: function (err) {
+						Swal.fire({
+							position: 'top-end',
+							icon: 'error',
+							title: 'Number cannot be saved.',
+							showConfirmButton: false,
+							timer: 1500
+						});
 					}
 				});
 			});

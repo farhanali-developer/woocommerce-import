@@ -8,5 +8,12 @@ $admin_id = $admin_id->ID;
 
 
 $result = $wpdb->get_row( $wpdb->prepare( "SELECT whatsapp_number FROM wp_users WHERE ID = %s", $admin_id));
-$result = $result->whatsapp_number;
+
+if(!empty($result)){
+    $result = $result->whatsapp_number;
+}
+else{
+    $result = "";
+}
+
 echo $result;

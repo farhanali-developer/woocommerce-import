@@ -70,29 +70,6 @@ foreach($csv_file as $csv_data){
             else if($product[$data['Type']] === "external"){
                $products = new WC_Product_External();
             }
-            // else if($product[$data['Type']] === "variation"){
-            //     $products = new WC_Product_Variable();
-            //     $variation = new WC_Product_Variation();
-            //     $variation->set_parent_id( $products->get_id() );
-
-            //     $attr_1_name = $product[$data['Attribute_1_name']];
-            //     $attr_1_val = $product[$data['Attribute_1_value(s)']];
-
-            //     $attr_2_name = $product[$data['Attribute_2_name']];
-            //     $attr_2_val = $product[$data['Attribute_2_value(s)']];
-
-            //     $attributes = array(
-            //         $attr_1_name => $attr_1_val,
-            //         $attr_2_name => $attr_2_val
-            //     );
-                                
-            //     $variation->set_attributes( array(''.strtolower($attr_1_name).'' => ''.$attr_1_val.'', ''.strtolower($attr_2_name).'' => ''.$attr_2_val.'') );
-            //     $variation->set_regular_price( $product[$data['Regular_price']] );
-            //     $variation->set_sale_price($product[$data['Sale_price']]);
-            //     $variation->set_status('publish');
-            //     // $variation->set_image_id( 4897 );
-            //     $variation->save();
-            // }
 
             $product_id = wc_get_product_id_by_sku($product[$data['SKU']]);
 
@@ -777,7 +754,7 @@ foreach($csv_file as $csv_data){
                 }
                 catch (Exception $e) {
                     echo $e->getMessage();
-                    echo "<h1>Error in adding product ".$product["ID"].".</h1>";
+                    echo "<h1>Error in adding product: ".$product[$data["Name"]].".</h1>";
                 }
             }
                 
