@@ -73,3 +73,7 @@
     opacity: .2;
   }
 }
+
+.product-type{
+  text-transform: capitalize;
+}

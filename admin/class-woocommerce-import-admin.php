@@ -129,6 +129,16 @@ function enqueue_admin_files($hook){
 }
 add_action("admin_enqueue_scripts", "enqueue_admin_files");
 
+add_action( 'admin_notices', 'custom_admin_notice' );
+function custom_admin_notice () {
+    global $pagenow;
+    if ( 'admin.php' === $pagenow && 'logs' === $_GET['page'] ) {
+        echo '<div class="notice notice-warning">
+      <p>Important: Logs are only from last uploaded CSV file. Logs will be deleted automatically after an hour.</p>
+      </div>';
+    }
+}
+
 add_action('admin_menu', 'my_menu_pages');
 function my_menu_pages(){
     add_menu_page('Import Products', 'Import Products', 'manage_options', 'import_products', 'import_products_function' );
@@ -963,6 +973,8 @@ function whatsapp_integration_menu(){
 }
 
 function logs_function(){
+	add_action('admin_notices', 'example_admin_notice');
+				add_action('admin_init', 'example_nag_ignore');
 ?>
 <div class="container-fluid mt-5">
 	<div class="row">
@@ -978,6 +990,9 @@ function logs_function(){
 						<th scope="col">ID</th>
 						<th scope="col">Product Name</th>
 						<th scope="col">Product Type</th>
+						<th scope="col">Date</th>
+						<th scope="col">Time</th>
+						<th scope="col">Operation Performed</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -989,7 +1004,10 @@ function logs_function(){
 								<th scope="row"><?php echo $i; ?></th>
 								<td><?php echo $val->id; ?></td>
 								<td><?php echo $val->name; ?></td>
-								<td><?php echo $val->type; ?></td>
+								<td class="product-type"><?php echo $val->type; ?></td>
+								<td><?php echo $val->date; ?></td>
+								<td><?php echo $val->time; ?></td>
+								<td><?php echo $val->operation; ?></td>
 							</tr>
 							<?php
 							$i++; 
@@ -1008,3 +1026,4 @@ function logs_function(){
 </div>
 <?php
 }
+

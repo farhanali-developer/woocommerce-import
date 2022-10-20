@@ -149,6 +149,9 @@ foreach($csv_file as $csv_data){
                             $object->id = $variation->get_id();
                             $object->name = $variation->get_name();
                             $object->type = $variation->get_type();
+                            $object->date = date('l, jS F, Y');
+                            $object->time = date('h:i:s A');
+                            $object->operation = "Added";
 
                             $transient_data[] = $object;
                     }
@@ -159,6 +162,9 @@ foreach($csv_file as $csv_data){
                     $object->id = $products->get_id();
                     $object->name = $products->get_name();
                     $object->type = $products->get_type();
+                    $object->date = date('l, jS F, Y');
+                    $object->time = date('h:i:s A');
+                    $object->operation = "Added";
 
                     $transient_data[] = $object;
 
@@ -224,6 +230,9 @@ foreach($csv_file as $csv_data){
                             $object->id = $update_product->get_id();
                             $object->name = $update_product->get_name();
                             $object->type = $update_product->get_type();
+                            $object->date = date('l, jS F, Y');
+                            $object->time = date('h:i:s A');
+                            $object->operation = "Updated";
 
                             $transient_data[] = $object;
                         }
@@ -262,6 +271,9 @@ foreach($csv_file as $csv_data){
                             $object->id = $variation->get_id();
                             $object->name = $variation->get_name();
                             $object->type = $variation->get_type();
+                            $object->date = date('l, jS F, Y');
+                            $object->time = date('h:i:s A');
+                            $object->operation = "Updated";
 
                             $transient_data[] = $object;
                         }
@@ -292,8 +304,9 @@ foreach($csv_file as $csv_data){
     $data["time_taken"] = $time_elapsed_secs;
     $pusher->trigger('my-channel', 'my-event', $result);
 
+    delete_transient("woocommerce_product_logs");
     if(false === get_transient("woocommerce_product_logs")){
-        set_transient("woocommerce_product_logs", $transient_data, HOUR_IN_SECONDS );
+        set_transient("woocommerce_product_logs", $transient_data, DAY_IN_SECONDS );
     }
 
     echo json_encode($data);
