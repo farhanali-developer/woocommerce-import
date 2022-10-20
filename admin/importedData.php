@@ -24,11 +24,11 @@ $pusher = new Pusher\Pusher(
 $data = $_POST;
 $csv_file = $_FILES;
 $result = array();
-if(!wp_verify_nonce( $_POST['nonce'], 'ajax-nonce' )){
-    wp_send_json_error( "Nonce is incorrect.", 401 );
-    die();
-    exit();
-}
+// if(!wp_verify_nonce( $_POST['nonce'], 'ajax-nonce' )){
+//     wp_send_json_error( "Nonce is incorrect.", 401 );
+//     die();
+//     exit();
+// }
 
 foreach($csv_file as $csv_data){
     //getting csv file name
@@ -46,9 +46,9 @@ foreach($csv_file as $csv_data){
     $total_rows = $csv->getTotalDataRowCount();
     $data['total_rows'] = $total_rows;
     $row_updated = 0;
+    $transient_data = array();
 
     // print("<pre>".print_r($csv_file_data,true)."</pre>");
- 
     if (!empty($csv_file_data)):
         $i = 1;
         global $wpdb;
@@ -56,6 +56,8 @@ foreach($csv_file as $csv_data){
         $new_products = 0;
         $updated_products = 0;
         $start = microtime(true);
+        
+        
         foreach ($csv_file_data as $product){
             if($product[$data['Type']] === "simple" || $product[$data['Type']] === "simple, virtual" || $product[$data['Type']] === "simple, downloadable" || $product[$data['Type']] === "simple, downloadable, virtual"){
                 $products = new WC_Product_Simple();
@@ -142,9 +144,24 @@ foreach($csv_file as $csv_data){
 
                             $variation->save();
                             $data['message'] = "".$variation->get_name()." Added.";
+
+                            $object = new stdClass();
+                            $object->id = $variation->get_id();
+                            $object->name = $variation->get_name();
+                            $object->type = $variation->get_type();
+
+                            $transient_data[] = $object;
                     }
 
                     $data['message'] = "".$products->get_name()." Added.";
+                    
+                    $object = new stdClass();
+                    $object->id = $products->get_id();
+                    $object->name = $products->get_name();
+                    $object->type = $products->get_type();
+
+                    $transient_data[] = $object;
+
                     $row_updated++;
                     $data['row_updated'] = $row_updated;
                     $new_products++;
@@ -203,6 +220,12 @@ foreach($csv_file as $csv_data){
                         
                             // $new_id = $update_product->save();
                             $data['message'] = "".$update_product->get_name()." Updated.";
+                            $object = new stdClass();
+                            $object->id = $update_product->get_id();
+                            $object->name = $update_product->get_name();
+                            $object->type = $update_product->get_type();
+
+                            $transient_data[] = $object;
                         }
 
                         else{
@@ -234,6 +257,13 @@ foreach($csv_file as $csv_data){
                             
                             $variation->save();
                             $data['message'] = "".$variation->get_name()." Updated.";
+
+                            $object = new stdClass();
+                            $object->id = $variation->get_id();
+                            $object->name = $variation->get_name();
+                            $object->type = $variation->get_type();
+
+                            $transient_data[] = $object;
                         }
     
                         $row_updated++;
@@ -249,6 +279,7 @@ foreach($csv_file as $csv_data){
                 }
             }
         }
+        
         $time_elapsed_secs = microtime(true) - $start;
         $result += ["time_taken" => gmdate("H:i:s", $time_elapsed_secs)];
     endif;
@@ -260,9 +291,15 @@ foreach($csv_file as $csv_data){
     $data["products_updated"] = $updated_products;
     $data["time_taken"] = $time_elapsed_secs;
     $pusher->trigger('my-channel', 'my-event', $result);
+
+    if(false === get_transient("woocommerce_product_logs")){
+        set_transient("woocommerce_product_logs", $transient_data, HOUR_IN_SECONDS );
+    }
+
     echo json_encode($data);
     fclose($file);
 }
+
 
 function pippin_get_image_id($path){
     // detect if is a media resize, and strip resize portion of file name

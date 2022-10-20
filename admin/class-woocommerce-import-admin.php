@@ -107,7 +107,7 @@ function enqueue_admin_files($hook){
 	$hook_parts = explode('_page_', $hook);
     $menu_slug = array_pop($hook_parts);
     
-    if ( ! in_array( $menu_slug, array('import_products', 'whatsapp_integration') ) ) {
+    if ( ! in_array( $menu_slug, array('import_products', 'whatsapp_integration', 'logs') ) ) {
         return;
     }
 	wp_enqueue_style('sweetalert2', "//cdn.jsdelivr.net/npm/@sweetalert2/theme-dark@4/dark.css");
@@ -133,6 +133,7 @@ add_action('admin_menu', 'my_menu_pages');
 function my_menu_pages(){
     add_menu_page('Import Products', 'Import Products', 'manage_options', 'import_products', 'import_products_function' );
 	add_submenu_page('import_products', 'Whatsapp Integration', 'Whatsapp Integration', 'manage_options', 'whatsapp_integration', 'whatsapp_integration_menu');
+	add_submenu_page('import_products', 'Logs', 'Logs', 'manage_options', 'logs', 'logs_function');
 }
 
 function import_products_function(){ ?>
@@ -583,7 +584,9 @@ function import_products_function(){ ?>
 					</table>
 					<input type="submit" value="Submit" class="submit-button btn btn-primary" id="submit-form-btn" />
 				</form>
-				<div id="results"></div>
+				<div id="results"><h1>
+					<?php //$woocommerce_product_logs = get_transient("woocommerce_product_logs"); print_r($woocommerce_product_logs); ?>
+				</h1></div>
 				<!-- Modal -->
 				<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
 					<div class="modal-dialog modal-dialog-centered" role="document">
@@ -756,6 +759,8 @@ function import_products_function(){ ?>
 						console.log(data);
 
 						sweetalert_success(data['products_added'], data['products_updated'], data['time_taken']);
+
+
 					},
 					error: function (err) {
 						// console.log(jqXHR);
@@ -843,6 +848,34 @@ function import_products_function(){ ?>
 				});
 			}
 
+			function custom_transient(){
+				// let importedData = "<?php echo $importedData; ?>";
+				// $.ajax({
+				// 	url: importedData,
+				// 	method: "POST",
+				// 	contentType: "application/json",
+				// 	cache: false,
+				// 	contentType: false,
+				// 	processData: false,
+				// 	async: true,
+				// 	success: function(data){
+				// 		hide_progress_bar();
+				// 		hide_model();
+				// 		$("#mapping-data, #submit-form-btn").hide(200);
+				// 		$("#csv-file").val('');
+						
+				// 		// var data = JSON.parse(data);
+
+				// 		let test = "<?php echo get_transient("test-transient") ?>";
+				// 		console.log("Transient Data: "+data);
+				// 		$("#result h1").text("Products Added: " + test);
+				// 	},
+				// 	error: function (err) {
+				// 		console.log(err);
+				// 	}
+				// });
+			}
+
 		});
 	</script>
 	<?php
@@ -927,4 +960,51 @@ function whatsapp_integration_menu(){
 		});
 	</script>
 	<?php
+}
+
+function logs_function(){
+?>
+<div class="container-fluid mt-5">
+	<div class="row">
+		<div class="col-12">
+			<?php
+				$woocommerce_product_logs = get_transient("woocommerce_product_logs");
+				if($woocommerce_product_logs){
+				?>
+				<table class="table table-hover">
+					<thead>
+						<tr>
+						<th scope="col">#</th>
+						<th scope="col">ID</th>
+						<th scope="col">Product Name</th>
+						<th scope="col">Product Type</th>
+						</tr>
+					</thead>
+					<tbody>
+					<?php
+						$i = 1;
+						foreach($woocommerce_product_logs as $val){
+					?>
+							<tr>
+								<th scope="row"><?php echo $i; ?></th>
+								<td><?php echo $val->id; ?></td>
+								<td><?php echo $val->name; ?></td>
+								<td><?php echo $val->type; ?></td>
+							</tr>
+							<?php
+							$i++; 
+						}
+					?>
+					</tbody>
+				</table>
+				<?php
+				}
+				else{
+					echo "<h2>No logs found.</h2>";
+				}
+			?>
+		</div>
+	</div>
+</div>
+<?php
 }
