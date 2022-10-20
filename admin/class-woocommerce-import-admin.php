@@ -744,9 +744,7 @@ function import_products_function(){ ?>
 							toast_function(data['message']);
 						});
 					},
-					complete: function(){
-						
-					},
+					complete: function(){},
 					success: function(data){
 						hide_progress_bar();
 						hide_model();
@@ -754,6 +752,9 @@ function import_products_function(){ ?>
 						$("#csv-file").val('');
 						
 						var data = JSON.parse(data);
+
+						console.log(data);
+
 						sweetalert_success(data['products_added'], data['products_updated'], data['time_taken']);
 					},
 					error: function (err) {
