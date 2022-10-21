@@ -102,12 +102,11 @@ class Woocommerce_Import_Admin {
 
 }
 
-
 function enqueue_admin_files($hook){
 	$hook_parts = explode('_page_', $hook);
     $menu_slug = array_pop($hook_parts);
     
-    if ( ! in_array( $menu_slug, array('import_products', 'whatsapp_integration', 'logs') ) ) {
+    if ( ! in_array( $menu_slug, array('import_products', 'whatsapp_integration', 'logs', 'other_woocommerce_store') ) ) {
         return;
     }
 	wp_enqueue_style('sweetalert2', "//cdn.jsdelivr.net/npm/@sweetalert2/theme-dark@4/dark.css");
@@ -120,6 +119,7 @@ function enqueue_admin_files($hook){
 
 
     wp_enqueue_script('sweetalert2', "https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/11.4.35/sweetalert2.min.js");
+    // wp_enqueue_script('bootstrap-bundle', "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.2.2/js/bootstrap.bundle.min.js");
     wp_enqueue_script('bootstrap', "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.2.2/js/bootstrap.min.js");
     wp_enqueue_script('pusher', "https://js.pusher.com/7.2/pusher.min.js");
     // wp_enqueue_script('noty', "https://cdnjs.cloudflare.com/ajax/libs/noty/3.1.4/noty.min.js");
@@ -133,7 +133,7 @@ add_action( 'admin_notices', 'custom_admin_notice' );
 function custom_admin_notice () {
     global $pagenow;
     if ( 'admin.php' === $pagenow && 'logs' === $_GET['page'] ) {
-        echo '<div class="notice notice-warning">
+        echo '<div class="notice notice-warning mt-5">
       <p>Important: Logs are only from last uploaded CSV file. Logs will be deleted automatically after an hour.</p>
       </div>';
     }
@@ -144,6 +144,7 @@ function my_menu_pages(){
     add_menu_page('Import Products', 'Import Products', 'manage_options', 'import_products', 'import_products_function' );
 	add_submenu_page('import_products', 'Whatsapp Integration', 'Whatsapp Integration', 'manage_options', 'whatsapp_integration', 'whatsapp_integration_menu');
 	add_submenu_page('import_products', 'Logs', 'Logs', 'manage_options', 'logs', 'logs_function');
+	add_submenu_page('import_products', 'Other Store', 'Other Store', 'manage_options', 'other_woocommerce_store', 'other_woocommerce_store_function');
 }
 
 function import_products_function(){ ?>
@@ -594,9 +595,7 @@ function import_products_function(){ ?>
 					</table>
 					<input type="submit" value="Submit" class="submit-button btn btn-primary" id="submit-form-btn" />
 				</form>
-				<div id="results"><h1>
-					<?php //$woocommerce_product_logs = get_transient("woocommerce_product_logs"); print_r($woocommerce_product_logs); ?>
-				</h1></div>
+				<div id="results"></div>
 				<!-- Modal -->
 				<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
 					<div class="modal-dialog modal-dialog-centered" role="document">
@@ -858,34 +857,6 @@ function import_products_function(){ ?>
 				});
 			}
 
-			function custom_transient(){
-				// let importedData = "<?php echo $importedData; ?>";
-				// $.ajax({
-				// 	url: importedData,
-				// 	method: "POST",
-				// 	contentType: "application/json",
-				// 	cache: false,
-				// 	contentType: false,
-				// 	processData: false,
-				// 	async: true,
-				// 	success: function(data){
-				// 		hide_progress_bar();
-				// 		hide_model();
-				// 		$("#mapping-data, #submit-form-btn").hide(200);
-				// 		$("#csv-file").val('');
-						
-				// 		// var data = JSON.parse(data);
-
-				// 		let test = "<?php echo get_transient("test-transient") ?>";
-				// 		console.log("Transient Data: "+data);
-				// 		$("#result h1").text("Products Added: " + test);
-				// 	},
-				// 	error: function (err) {
-				// 		console.log(err);
-				// 	}
-				// });
-			}
-
 		});
 	</script>
 	<?php
@@ -972,58 +943,228 @@ function whatsapp_integration_menu(){
 	<?php
 }
 
-function logs_function(){
-	add_action('admin_notices', 'example_admin_notice');
-				add_action('admin_init', 'example_nag_ignore');
-?>
-<div class="container-fluid mt-5">
-	<div class="row">
-		<div class="col-12">
-			<?php
-				$woocommerce_product_logs = get_transient("woocommerce_product_logs");
-				if($woocommerce_product_logs){
-				?>
-				<table class="table table-hover">
-					<thead>
-						<tr>
-						<th scope="col">#</th>
-						<th scope="col">ID</th>
-						<th scope="col">Product Name</th>
-						<th scope="col">Product Type</th>
-						<th scope="col">Date</th>
-						<th scope="col">Time</th>
-						<th scope="col">Operation Performed</th>
-						</tr>
-					</thead>
-					<tbody>
-					<?php
-						$i = 1;
-						foreach($woocommerce_product_logs as $val){
-					?>
-							<tr>
-								<th scope="row"><?php echo $i; ?></th>
-								<td><?php echo $val->id; ?></td>
-								<td><?php echo $val->name; ?></td>
-								<td class="product-type"><?php echo $val->type; ?></td>
-								<td><?php echo $val->date; ?></td>
-								<td><?php echo $val->time; ?></td>
-								<td><?php echo $val->operation; ?></td>
-							</tr>
-							<?php
-							$i++; 
-						}
-					?>
-					</tbody>
-				</table>
+function logs_function(){ ?>
+	<div class="container-fluid mt-5">
+		<div class="row">
+			<div class="col-12">
 				<?php
-				}
-				else{
-					echo "<h2>No logs found.</h2>";
-				}
-			?>
+					$woocommerce_product_logs = get_transient("woocommerce_product_logs");
+					if($woocommerce_product_logs){
+					?>
+					<table class="table table-hover">
+						<thead>
+							<tr>
+							<th scope="col">#</th>
+							<th scope="col">ID</th>
+							<th scope="col">Product Name</th>
+							<th scope="col">Product Type</th>
+							<th scope="col">Date</th>
+							<th scope="col">Time</th>
+							<th scope="col">Operation Performed</th>
+							</tr>
+						</thead>
+						<tbody>
+						<?php
+							$i = 1;
+							foreach($woocommerce_product_logs as $val){
+						?>
+								<tr>
+									<th scope="row"><?php echo $i; ?></th>
+									<td><?php echo $val->id; ?></td>
+									<td><?php echo $val->name; ?></td>
+									<td class="product-type"><?php echo $val->type; ?></td>
+									<td><?php echo $val->date; ?></td>
+									<td><?php echo $val->time; ?></td>
+									<td><?php echo $val->operation; ?></td>
+								</tr>
+								<?php
+								$i++; 
+							}
+						?>
+						</tbody>
+					</table>
+					<?php
+					}
+					else{
+						echo "<h2>No logs found.</h2>";
+					}
+				?>
+			</div>
 		</div>
 	</div>
-</div>
 <?php
 }
 
+function other_woocommerce_store_function(){ ?>
+	<div class="container-fluid mt-5 px-5">
+		<div class="row">
+			<div class="col-12">
+				<div class="all-products px-5">
+					<div class="d-flex flex-wrap justify-content-end my-5">
+						<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addnewproduct">Add New</button>
+
+						<div class="modal fade" id="addnewproduct" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+							<div class="modal-dialog modal-dialog-centered" role="document">
+								<div class="modal-content">
+								<div class="modal-header">
+									<h5 class="modal-title" id="exampleModalCenterTitle">Add New Product</h5>
+									<button type="button" id="close-icon" class="close" data-dismiss="modal" aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+									</button>
+								</div>
+								<div class="modal-body">
+									...
+								</div>
+								<div class="modal-footer">
+									<button type="button" id="close-modal" class="btn btn-secondary" data-dismiss="modal">Close</button>
+									<button type="button" id="save-changes" class="btn btn-primary">Save changes</button>
+								</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<table class="table table-hover">
+						<thead>
+							<tr>
+							<th scope="col">#</th>
+							<th scope="col">SKU</th>
+							<th scope="col">Product Name</th>
+							<th scope="col">Product Type</th>
+							<th scope="col">Operation</th>
+							</tr>
+						</thead>
+						<tbody id="products-data">
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		jQuery(document).ready(function($){
+
+			$("#addnewproduct #close-icon, #addnewproduct #close-modal, #addnewproduct #save-changes").on("click", function(){
+				$("#addnewproduct").modal("hide");
+			});
+
+			$("#updateproduct #close-icon, #updateproduct #close-modal, #updateproduct #save-changes").on("click", function(){
+				$("#updateproduct").modal("hide");
+			});
+
+
+
+			get_all_products();
+
+			
+
+			// $("").on("click", delete_product());
+
+			
+
+			
+			function get_all_products(){
+				$.ajax({
+					url: "https://localhost/rest-api/wp-json/wc/v3/products?per_page=100&consumer_key=ck_beba092a9505ae5d7537483ebf70e29d796a9d65&consumer_secret=cs_5d897ae1903f187fef019871efea0d06f8d0232b&oauth_signature_method=HMAC-SHA1",
+					method: "GET",
+					contentType: "application/json",
+					cache: false,
+					processData: false,
+					async: true,
+					success: function(data){
+
+						let i = 1;
+						for(var val of data){
+
+							// console.log(val);
+
+							let product_id = val['id'];
+							let product_name = val['name'];
+							let product_sku = val['sku'];
+							let product_type = val['type'];
+							let product_price = val['price'];
+
+							var productshtml = 
+							'<tr id="row-'+product_id+'"><th scope="row">'+i+'</th><td>'+product_sku+'</td><td>'+product_name+'</td><td class="product-type">'+product_type+'</td><td><button id="product-id'+product_id+'" data-id="'+product_id+'" type="button" class="btn btn-danger mx-2 delete-btn">Delete</button><button type="button" class="btn btn-info mx-2" data-bs-toggle="modal" data-bs-target="#updateproduct'+product_id+'">Update</button><div class="modal fade" id="updateproduct'+product_id+'" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="exampleModalCenterTitle" aria-hidden="true"><div class="modal-dialog modal-dialog-centered" role="document"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="exampleModalCenterTitle">Update Product</h5><button type="button" id="close-icon" class="close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></div><div class="modal-body"><label for="product-name">Product Name</label><input name="product-name" type="text" class="form-control mb-2" placeholder="Product Name" value="'+product_name+'" /><label for="product-price">Product Price</label><input name="product-price" type="text" class="form-control mb-2" placeholder="Product Name" value="'+product_price+'" /></div><div class="modal-footer"><button type="button" id="close-'+product_id+'" class="btn btn-secondary close-modal" data-bs-dismiss="modal">Close</button><button type="button" id="save-changes" data-id="'+product_id+'" class="btn btn-primary save-changes">Save changes</button></div></div></div></div></td></tr>';
+							
+							$("#products-data").append(productshtml);
+							i++;
+						}
+
+						delete_product();
+
+						$(".save-changes").on("click", function(){
+						let product_id = $(this).attr("data-id");
+
+						
+						let new_product_name = $("#row-"+product_id+" input[name=product-name]").val();
+						let new_product_price = $("#row-"+product_id+" input[name=product-price]").val();
+
+
+						let update_products_data = 
+						{
+							"name" : new_product_name,
+							"regular_price" : new_product_price
+						};
+
+						update_product(product_id, update_products_data);
+
+						$("#updateproduct"+product_id+"").modal("hide");
+						});
+					}
+				});
+			}
+
+
+			function delete_product(){
+
+				$(".delete-btn").on("click", function(){
+					var delete_id = $(this).attr("data-id");
+					
+					$.ajax({
+						url: "https://localhost/rest-api/wp-json/wc/v3/products/"+delete_id+"?consumer_key=ck_beba092a9505ae5d7537483ebf70e29d796a9d65&consumer_secret=cs_5d897ae1903f187fef019871efea0d06f8d0232b&oauth_signature_method=HMAC-SHA1&force=true",
+						method: "DELETE",
+						contentType: "application/json",
+						cache: false,
+						processData: false,
+						async: true,
+						success: function(data){
+							$("#products-data").empty();
+							get_all_products();
+						}
+					});
+
+				});
+
+
+
+			}
+
+			function update_product(update_id, update_data){
+				$.ajax({
+					url: "https://localhost/rest-api/wp-json/wc/v3/products/"+update_id+"?consumer_key=ck_beba092a9505ae5d7537483ebf70e29d796a9d65&consumer_secret=cs_5d897ae1903f187fef019871efea0d06f8d0232b&oauth_signature_method=HMAC-SHA1&force=true",
+					method: "PUT",
+					data: JSON.stringify(update_data),
+					contentType: "application/json",
+					cache: false,
+					processData: false,
+					async: true,
+					success: function(data){
+						$("#products-data").empty();
+						get_all_products();
+					},
+					error: function (err) {
+						console.log(jqXHR);
+						console.log(textStatus);
+						// sweetalert_error(err);
+					}
+				});
+			}
+
+		});
+	</script>
+<?php
+}
+
+//Consumer Key ck_beba092a9505ae5d7537483ebf70e29d796a9d65
+//Consumer Secret cs_5d897ae1903f187fef019871efea0d06f8d0232b
